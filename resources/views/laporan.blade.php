@@ -2,6 +2,7 @@
 
 @section('content')
 <v-container>
-    <h5>laporan</h5>
+    <h5 class="headline">Daftar Laporan</h5>
+    <list-report></list-report>
 </v-container>
 @endsection

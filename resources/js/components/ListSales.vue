@@ -5,7 +5,7 @@
                 <v-spacer></v-spacer>
                 <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
             </v-card-title>
-            <v-data-table :headers="headers" :items="this.$root.desserts" :pagination.sync="pagination" :search="search">
+            <v-data-table class="elevation-1" :headers="headers" :loading="loading" :items="this.$root.desserts" :pagination.sync="pagination" :search="searchTrigger" hide-actions>
                 <template v-slot:items="props">
                     <td class="text-xs-center">{{ props.item.identitas }}</td>
                     <td class="text-xs-center">{{ props.item.name }}</td>
@@ -21,6 +21,9 @@
                     </v-alert>
                 </template>
             </v-data-table>
+            <div class="text-xs-center pt-2">
+                <v-pagination class="mb-2" v-if="!isSearch" v-model="pagination.current" :length="pagination.total" @input="onPageChange"></v-pagination>
+            </div>
         </v-card>
 
         <template>
@@ -39,7 +42,7 @@
                         </v-toolbar>
                         <v-list three-line subheader>
                             <v-subheader>Sales Control</v-subheader>
-                            <v-layout class="ml-3" row wrap>
+                            <v-layout class="ml-3" wrap>
                                 <v-form ref="form" v-model="valid" lazy-validation>
                                     <v-text-field v-model="identitas" :rules="nonNull" label="Identitas" required></v-text-field>
                                     <v-text-field v-model="name" :rules="nonNull" label="Nama" required></v-text-field>
@@ -72,9 +75,6 @@
 </template>
 <script>
   export default {
-    created(){
-        this.getListSales();
-    },
     data () {
       return {
         search: '',
@@ -86,6 +86,8 @@
         no_handphone: '',
         password: '',
         index: '',
+        isSearch: false,
+        loading: true,
         mask_phone: '###-###-###-###',
         dialog: false,
         valid: true,
@@ -100,7 +102,9 @@
             no_hp : '0' + this.no_handphone,
         },
         pagination: {
-            rowsPerPage: 10
+            rowsPerPage: 10,
+            current: 1,
+            total: 0
         },
         nameRules: [
             v => !!v || 'Name is required',
@@ -114,10 +118,10 @@
             v => /.+@.+/.test(v) || 'E-mail must be valid'
         ],
         headers: [
-          { text: 'Identitas', align: 'center', sortable: false, value: 'name'},
-          { text: 'Nama', value: 'calories', align: 'center' },
-          { text: 'E-Mail', value: 'fat', align: 'center' },
-          { text: 'No. Handphone', value: 'carbs', align: 'center' },
+          { text: 'Identitas', align: 'center', sortable: false, value: 'identitas'},
+          { text: 'Nama', value: 'name', align: 'center' },
+          { text: 'E-Mail', value: 'email', align: 'center' },
+          { text: 'No. Handphone', value: 'alamat', align: 'center' },
           { text: 'Actions', sortable: false, align: 'center'}
         ],
       }
@@ -129,6 +133,17 @@
         token() {
             let token = document.head.querySelector('meta[name="csrf-token"]');
             return token.content
+        },
+        searchTrigger(){
+            if(this.search == ''){
+                this.loading = true;
+                this.isSearch = false;
+                this.getListSales();
+            } else {
+                this.isSearch = true;
+                this.loading = true;
+                this.filteredSales();
+            }
         },
     },
     methods: {
@@ -142,9 +157,13 @@
           this.no_handphone = data.no_hp != null ? data.no_hp.substr(1) : data.no_hp ;
           this.index = index;
       },
+      onPageChange(){
+          this.getListSales();
+      },
       validate () {
+          var self = this.$root;
         if (this.$refs.form.validate()) {
-            axios.post('http://sales-report.smkrus.com/api/user/update', {
+            axios.post('http://127.0.0.1:8000/user/update', {
                 _token : this.token,
                 id : this.id,
                 identitas : this.identitas,
@@ -153,11 +172,36 @@
                 alamat : this.alamat,
                 no_hp : '0' + this.no_handphone
             }).then((response) => {
-                console.log(response.data.message);
+                this.items.identitas = this.identitas;
+                this.items.name = this.name;
+                this.items.email = this.email;
+                this.items.alamat = this.alamat;
+                this.items.no_hp = '0' + this.no_handphone;
+                this.dialog = false;
+                Swal.fire({
+                    title: 'Sukses',
+                    text: 'Sukses Mengupdate Sales',
+                    type: 'success',
+                    showCancelButton: false,
+                    confirmButtonText: 'Ya'
+                }).then((result) => {
+                    if(result.value){
+                        location.reload();
+                    }
+                });
             }, (error) => {
                 console.log(error);
             });
         }
+      },
+      filteredSales(){
+        axios.post('http://127.0.0.1:8000/user/search', {
+            _token : this.token,
+            search : this.search,
+        }).then((response) => {
+            this.loading = false;
+            return this.$root.desserts = response.data;
+        });
       },
       reset () {
         this.$refs.form.reset()
@@ -165,9 +209,12 @@
       getListSales(){
         let self = this.$root;
         this.dialog_loading = true;
-        axios.get(this.url_list_sales).then((response) => {
-            self.desserts = response.data
+        axios.get("http://127.0.0.1:8000/user/list_sales?page=" + this.pagination.current).then((response) => {
+            self.desserts = response.data.data
             this.dialog_loading = false;
+            this.loading = false;
+            this.pagination.current = response.data.current_page;
+            this.pagination.total = response.data.last_page;
         }, (error) => {
             console.log(error);
         });
@@ -185,13 +232,15 @@
             confirmButtonText: 'Ya!'
         }).then((result) => {
             if (result.value) {
-                axios.post('http://sales-report.smkrus.com/api/user/delete', {
+                axios.post('http://127.0.0.1:8000/user/delete', {
                     _token : this.token,
                     id : this.id
                 }).then((response) => {
                     self.desserts.splice(this.index, 1);
                     this.dialog = false;
-                    Swal.fire('Sukses', 'Sukses Menghapus Sales', 'success');
+                    Swal.fire('Sukses', 'Sukses Menghapus Sales', 'success').then((result) => {
+                        if(result.value) window.location.reload();
+                    });
                 }, (error) => {
                     console.log(error);
                 });

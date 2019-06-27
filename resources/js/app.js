@@ -29,6 +29,8 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 Vue.component('toolbar', require('./components/scaffold/ToolbarComponent.vue').default);
 Vue.component('list-sales', require('./components/ListSales.vue').default);
 Vue.component('tambah-sales', require('./components/TambahSales.vue').default);
+Vue.component('job-management', require('./components/JobManagement.vue').default);
+Vue.component('list-report', require('./components/ListReport.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

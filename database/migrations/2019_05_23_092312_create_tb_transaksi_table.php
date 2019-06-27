@@ -16,8 +16,7 @@ class CreateTbTransaksiTable extends Migration
         Schema::create('tb_transaksi', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('id_agenda')->unsigned();
-            $table->string('ttd_client');
-            $table->string('foto');
+            $table->string('description');
             $table->string('lokasi_laporan');
             $table->string('tanggal_kerjakan');
             $table->string('status');

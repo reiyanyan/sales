@@ -96,7 +96,7 @@ export default {
         validate () {
             if (this.$refs.form.validate()) {
                 var self = this.$root;
-                axios.post('http://sales-report.smkrus.com/api/user/store', {
+                axios.post('http://127.0.0.1:8000/user/store', {
                     _token: this.token,
                     identitas : this.identitas,
                     name : this.name,
@@ -105,16 +105,23 @@ export default {
                     no_hp : '0' + this.no_handphone,
                     password: this.password
                 }).then((response) => {
-                    this.items.identitas = this.identitas;
-                    this.items.name = this.name;
-                    this.items.email = this.email;
-                    this.items.alamat = this.alamat;
-                    this.items.no_hp = '0' + this.no_handphone;
-                    this.items.password= this.password;
-                    this.dialog = false;
-                    Swal.fire('Sukses', 'Sukses Menambahkan Sales', 'success');
-                    self.desserts.push(this.items);
-                    this.$refs.form.reset();
+                    if(response.data.message == 'fails'){
+                        Swal.fire('Error', 'Email sudah ada', 'error');
+                        this.email = '';
+                    } else {
+                        this.items.identitas = this.identitas;
+                        this.items.name = this.name;
+                        this.items.email = this.email;
+                        this.items.alamat = this.alamat;
+                        this.items.no_hp = '0' + this.no_handphone;
+                        this.items.password= this.password;
+                        this.dialog = false;
+                        self.desserts.push(this.items);
+                        this.$refs.form.reset();
+                        Swal.fire('Sukses', 'Sukses Menambahkan Sales', 'success').then((result) => {
+                            if(result.value) window.location.reload();
+                        });
+                    }
                 }, (error) => {
                     console.log(error);
                 });
