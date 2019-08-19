@@ -11,15 +11,11 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        for ($i=0; $i < 30; $i++) { 
-	    	DB::table('users')->insert([
-	            'identitas' => str_random(8),
-	            'name' => str_random(15),
-	            'alamat' => str_random(20),
-	            'no_hp' => str_random(12),
-	            'role' => 1,
-	            'email' => str_random(12).'@mail.com',
-	            'password' => bcrypt('secret')
+		$faker = Faker\Factory::create();
+        for ($i=1; $i < 31; $i++) { 
+	    	DB::table('tb_pictures')->insert([
+				'laporan_id' => $i,
+				'foto' => 'carbon.png',
 	        ]);
     	}
     }

@@ -185,14 +185,12 @@ class UserController extends Controller
         $var= array();
         if(!$agendas->isEmpty()){
             foreach($agendas as $agenda){
-                if(date("Y-m-d") <= $agenda->tanggal){
                     $jobs['job_id'] = $agenda->id;
                     $jobs['job_description'] = $agenda->nama_agenda;
                     $jobs['shop_name'] = $agenda->nama_toko;
                     $jobs['shop_address'] = $agenda->lokasi;
                     $jobs['shop_phone'] = $agenda->telephone;
                     $var[] = $jobs;
-                }
             }
             return response()->json([
                 'success' => true,
@@ -331,7 +329,7 @@ class UserController extends Controller
     }
 
     public function report_all(Request $request){
-        $agenda = Agenda::where('user_id', $request->id)->pluck('id')->toArray();
+        $agenda = Agenda::where('user_id_sasaran', $request->id)->pluck('id')->toArray();
         $laporan = Laporan::whereIn('id_agenda', $agenda)->get();
 
         $var = array();
@@ -339,12 +337,12 @@ class UserController extends Controller
             foreach($laporan as $report){
                 $laporanId = Laporan::where('id_agenda', $report->id_agenda)->get();
                 foreach($laporanId as $lapor){
-                    $picture = Pictures::where('laporan_id', $lapor->id)->pluck('foto');
+                    $picture = Pictures::where('laporan_id', $lapor->id)->first();
                 }
                 $jobs['job_id'] = $report->id_agenda;
                 $jobs['report_id'] = $report->id;
-                $jobs['proof_image'] = $picture;
-                $jobs['location'] = $report->lokasi;
+                $jobs['proof_image'] = $picture->foto;
+                $jobs['location'] = $report->lokasi_laporan;
                 $jobs['status'] = $report->status;
                 $jobs['description'] = $report->description;
                 $jobs['created_at'] = $report->created_at;

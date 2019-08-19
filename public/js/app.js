@@ -1925,6 +1925,7 @@ __webpack_require__.r(__webpack_exports__);
       infoDialog: false,
       dialog_loading: false,
       date: new Date().toISOString().substr(0, 10),
+      mask_phone: '#############',
       modal: false,
       list_sales: [],
       job_list: [],
@@ -39177,6 +39178,7 @@ var render = function() {
                                         _c("v-text-field", {
                                           attrs: {
                                             rules: _vm.nonNull,
+                                            mask: _vm.mask_phone,
                                             label: "Nomor Handphone",
                                             required: ""
                                           },

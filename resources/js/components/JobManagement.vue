@@ -71,7 +71,7 @@
                                             <v-text-field v-model="pekerjaan" :rules="nonNull" label="Pekerjaan" required></v-text-field>
                                             <v-text-field v-model="alamat_tujuan" :rules="nonNull" label="Alamat Tujuan" required></v-text-field>
                                             <v-text-field v-model="nama_toko" :rules="nonNull" label="Nama Toko" required></v-text-field>
-                                            <v-text-field v-model="handphone" :rules="nonNull" label="Nomor Handphone" required></v-text-field>
+                                            <v-text-field v-model="handphone" :rules="nonNull" :mask="mask_phone" label="Nomor Handphone" required></v-text-field>
                                             <v-text-field v-model="lokasi" :rules="nonNull" label="Lokasi" required></v-text-field>
                                             <v-text-field v-model="date" label="Tanggal" readonly @click="modal = true"></v-text-field>
                                         </v-flex>
@@ -128,6 +128,7 @@
                 infoDialog: false,
                 dialog_loading: false,
                 date: new Date().toISOString().substr(0, 10),
+                mask_phone: '#############',
                 modal: false,
                 list_sales: [],
                 job_list: [],
