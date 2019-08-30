@@ -9,6 +9,7 @@ use App\Agenda;
 use App\Laporan;
 use Carbon\Carbon;
 use App\Pictures;
+use DB;
 
 class UserController extends Controller
 {
@@ -91,9 +92,150 @@ class UserController extends Controller
         ]);
     }
 
+    // DC024
+    public function sendPushNotification($token, $notificationTitle, $notificationBody, $payloadTitle, $payloadMessage){
+        if(trim($token) == ""  || trim($token) == "-")	return "Invalid device ID";
+
+        $data = array(
+                "to" => $token,
+                "notification" => array(
+                  "title" => $notificationTitle,
+                  "body" => $notificationBody
+                ),
+                "data" => array(
+                  "title" => $payloadTitle,
+                  "message" => $payloadMessage
+                )
+            );
+          $data_string = json_encode($data);
+
+          $headers = array(
+              'Authorization: key=AIzaSyB_Rw_acR4mYBJSDOYT3rSsBf5D1a12Zdc',
+              'Content-Type: application/json'
+          );
+
+          $ch = curl_init();
+
+          curl_setopt( $ch,CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send' );
+          curl_setopt( $ch,CURLOPT_POST, true );
+          curl_setopt( $ch,CURLOPT_HTTPHEADER, $headers );
+          curl_setopt( $ch,CURLOPT_RETURNTRANSFER, true );
+          curl_setopt( $ch,CURLOPT_POSTFIELDS, $data_string);
+
+          $result = curl_exec($ch);
+
+          curl_close ($ch);
+
+          // $user = DB::table("users")
+          //   ->where("android_token", $token)
+          //   ->first();
+          //
+          // if(count($user) > 0) {
+          //   $uName = $user->name;
+          //   $uEmail = $user->email;
+          // }
+          // else {
+          //   $uName = "-";
+          //   $uEmail = "-";
+          // }
+
+          return $result;
+    }
+
+    public function sendPushNotification2(){
+        $token = "f99t9jy_nOk:APA91bHREvNYF6Wu2n3uQSSw5Xy50WEgMouIHP5fox0RVUow6o_S3d0Tty5EqSp-f0wsvoiuIrbdvQohseTKQpXlf4sk-Z2efhPG3dk5bVUn1J0J9kAUGeCTntX8M_IGqXquOG5H8v5G";
+        $notificationTitle = "dwedww";
+        $notificationBody = "dwedww";
+        $payloadTitle = "dwedww";
+        $payloadMessage = "dwedww";
+
+        if(trim($token) == ""  || trim($token) == "-")	return "Invalid device ID";
+
+        $data = array(
+                "to" => $token,
+                "notification" => array(
+                  "title" => $notificationTitle,
+                  "body" => $notificationBody
+                ),
+                "data" => array(
+                  "title" => $payloadTitle,
+                  "message" => $payloadMessage
+                )
+            );
+          $data_string = json_encode($data);
+
+          $headers = array(
+              'Authorization: key=AIzaSyB_Rw_acR4mYBJSDOYT3rSsBf5D1a12Zdc',
+              'Content-Type: application/json'
+          );
+
+          $ch = curl_init();
+
+          curl_setopt( $ch,CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send' );
+          curl_setopt( $ch,CURLOPT_POST, true );
+          curl_setopt( $ch,CURLOPT_HTTPHEADER, $headers );
+          curl_setopt( $ch,CURLOPT_RETURNTRANSFER, true );
+          curl_setopt( $ch,CURLOPT_POSTFIELDS, $data_string);
+
+          $result = curl_exec($ch);
+
+          curl_close ($ch);
+
+          // $user = DB::table("users")
+          //   ->where("android_token", $token)
+          //   ->first();
+          //
+          // if(count($user) > 0) {
+          //   $uName = $user->name;
+          //   $uEmail = $user->email;
+          // }
+          // else {
+          //   $uName = "-";
+          //   $uEmail = "-";
+          // }
+
+          return $result;
+    }
+
+    public function kirimWoe(){
+        $token = "fxCTO-iPXjM:APA91bE76EaBWru96eyK0RubhoKzJA6LiVyuWNawFGEWbdmNhVeTMd9DhPy-aYGfE38M1TQ25cWjviBN7ZzpRcisuiMRhU_g0UKf11e-hxr9zu0h7GVx70rlR5EVNe9lNEngVehn4aF-";
+        $title = "dwewedwed";
+        $message = "wfewefwe";
+
+        define( 'API_ACCESS_KEY', 'AAAAfqVEU1s:APA91bEM5GPflT4Q4CoJQ4R4jQxcOFC1FZFkepHYjfPvQ0xng5GIogvQlpmSLAd73fcBEgtTyrHH0reTNX1AQP-VyXSwNEyXlE-WdiPVnncOMzN5RYoP0LHgGRI_ET861p9K-mrLHeyA' );
+        $msg = array(
+            "message"  => $message,
+            "title"  => $title
+        );
+        $fields = array(
+            'registration_ids' => array($token),
+            'data'   => $msg
+        );
+        // echo response()->json($fields);
+        // echo json_encode($fields, JSON_PRETTY_PRINT);
+        $headers = array(
+            'Authorization: key=' . API_ACCESS_KEY,
+            'Content-Type: application/json'
+        );
+        $ch = curl_init();
+        curl_setopt( $ch,CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send' );
+        curl_setopt( $ch,CURLOPT_POST, true );
+        curl_setopt( $ch,CURLOPT_HTTPHEADER, $headers );
+        curl_setopt( $ch,CURLOPT_RETURNTRANSFER, true );
+        curl_setopt( $ch,CURLOPT_SSL_VERIFYPEER, false );
+        curl_setopt( $ch,CURLOPT_POSTFIELDS, json_encode( $fields ) );
+        $result = curl_exec($ch );
+        curl_close( $ch );
+        echo $result;
+        return response()->json( $result );
+    }
+
     public function store_job(Request $request){
         $agenda = Agenda::where('id', $request->agenda_id)->first();
         if(!$agenda){
+            $user1 = User::where('id', $request->user_id_sasaran)->first();
+            $android_token1 = $user1->android_token;
+
             $agenda = new Agenda;
             $agenda->user_id = $request->user_id;
             $agenda->user_id_sasaran = $request->user_id_sasaran;
@@ -104,10 +246,21 @@ class UserController extends Controller
             $agenda->lokasi = $request->lokasi;
             $agenda->tanggal = $request->tanggal;
             $agenda->save();
+
+            // push notif to sales
+            $notiiTitle = "FBI Sales";
+            $notifBody = "Informasi dari Admin";
+            $payloadTitle = "Pesan dari Admin";
+            $payloadBody = "Anda Memiliki Job Baru Dari Admin, ".$request->nama_agenda;
+            //sendPushNotification($android_token1, $notiiTitle, $notifBody, $payloadTitle, $payloadBody);
+
             return response()->json([
                 'message' => 'true'
             ]);
         } else {
+            $user2 = User::where('id', $request->user_id_sasaran)->first();
+            $android_token2 = $user2->android_token;
+
             $agenda->user_id = $request->user_id;
             $agenda->user_id_sasaran = $request->user_id_sasaran;
             $agenda->nama_agenda = $request->nama_agenda;
@@ -117,6 +270,14 @@ class UserController extends Controller
             $agenda->lokasi = $request->lokasi;
             $agenda->tanggal = $request->tanggal;
             $agenda->save();
+
+            // push notif to sales
+            $notiiTitle = "FBI Sales";
+            $notifBody = "Informasi FBI Sales";
+            $payloadTitle = "Pesan dari Admin";
+            $payloadBody = "Anda Memiliki Job Baru, ".$request->nama_agenda;
+            //sendPushNotification($android_token2, $notiiTitle, $notifBody, $payloadTitle, $payloadBody);
+
             return response()->json([
                 'message' => 'true'
             ]);
@@ -136,6 +297,9 @@ class UserController extends Controller
 
         if($user){
             if(Hash::check($request->password, $user->password)){
+                User::where('email', $request->email)->update(array(
+                    "android_token" => $request->fcm_token
+                ));
                 $var['id'] = $user->id;
                 return response()->json([
                     'success' => true,
@@ -181,7 +345,7 @@ class UserController extends Controller
     }
 
     public function job_active_all(Request $request){
-        $agendas = Agenda::where('user_id_sasaran', $request->id)->get();
+        $agendas = Agenda::where('user_id_sasaran', $request->id)->where('status', 'active')->get();
         $var= array();
         if(!$agendas->isEmpty()){
             foreach($agendas as $agenda){
@@ -196,7 +360,13 @@ class UserController extends Controller
                 'success' => true,
                 'payload' => array('jobs' => $var)
             ]);
-        } else {
+        } elseif ($agendas->isEmpty()) {
+              return response()->json([
+                  'success' => true,
+                  'payload' => null
+              ]);
+        }
+         else {
             $var['code'] = 401;
             $var['message'] = 'User Not Found';
             return response()->json([
@@ -291,13 +461,17 @@ class UserController extends Controller
 
         if(!empty($request->proof_image)){
             $laporan->id_agenda = $request->job_id;
-    
+
             $laporan->lokasi_laporan = $request->location;
             $laporan->tanggal_kerjakan = date('Y-m-d H:i:s');
             $laporan->description = $request->description;
             $laporan->status = 'selesai';
             $laporan->save();
-            
+
+            Agenda::where('id', $request->job_id)->update(array(
+                "status" => "done"
+            ));
+
             $picture->laporan_id = $laporan->id;
 
             $file = $request->proof_image;

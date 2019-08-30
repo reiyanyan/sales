@@ -28,5 +28,8 @@ Route::get('/report/all/{id}', 'UserController@report_all')->name('apiReport_all
 Route::get('/report/{report_id}', 'UserController@report_id')->name('apiReport_id');
 //pictures
 
+//test firebase notif
+Route::post('/push_notif', 'UserController@kirimWoe');
+
 //unused
 Route::get('simple', 'UserController@simpleApi');
